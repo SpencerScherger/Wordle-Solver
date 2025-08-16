@@ -62,6 +62,10 @@ def simulate():
 
     for _ in range(num_trials):
         target = rng.choice(answers)
+
+        if _ < 3:  # print a few
+            print("[simulate] sample target:", target)
+            
         solver = Wordle_Solver(all_words)
         solved = False
 
