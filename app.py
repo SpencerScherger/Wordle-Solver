@@ -15,10 +15,10 @@ def index():
 @app.route("/solve", methods=["POST"])
 def solve():
     target = request.json.get("target").lower()
-    if target not in answers:
+    if target not in all_words:
         return jsonify({"error": "Invalid word"}), 400
 
-    solver = WordleSolver(all_words)
+    solver = Wordle_Solver(all_words)
     guesses = []
     max_attempts = 6
 
