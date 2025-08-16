@@ -14,7 +14,9 @@ def index():
 
 @app.route("/solve", methods=["POST"])
 def solve():
-    target = request.json.get("target").lower()
+    target = request.json.get("target").strip().lower()
+    if len(target) != 5:
+        return jsonify({"error": "Word must be exactly 5 letters."}), 400
     if target not in all_words:
         return jsonify({"error": "Invalid word"}), 400
 
