@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, jsonify
 from solver import Wordle_Solver
 from util import load_word_lists
 import random
+import secrets
 from collections import Counter
 
 app = Flask(__name__)
@@ -56,8 +57,11 @@ def simulate():
     max_attempts = 6
     guess_distribution = Counter()
 
+    # Different RNG per request
+    rng = random.Random(secrets.randbits(64))
+
     for _ in range(num_trials):
-        target = random.choice(answers)
+        target = rng.choice(answers)
         solver = Wordle_Solver(all_words)
         solved = False
 

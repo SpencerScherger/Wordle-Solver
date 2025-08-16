@@ -1,5 +1,6 @@
 # simulation.py
 import random
+import secrets
 from solver import Wordle_Solver
 from util import load_word_lists
 from collections import Counter
@@ -10,6 +11,8 @@ def main():
     NUM_TRIALS = 1000
     MAX_ATTEMPTS = 6
     OUTPUT_PATH = "results/simulation_stats.csv"
+
+    rng = random.Random(secrets.randbits(64))
 
     # Load word lists
     answers, all_words = load_word_lists()
@@ -23,7 +26,7 @@ def main():
 
     # Simulation loop
     for trial in range(1, NUM_TRIALS + 1):
-        target = random.choice(answers)
+        target = rng.choice(answers)
         solver = Wordle_Solver(all_words)
         solved = False
 
