@@ -1,6 +1,6 @@
 # app.py
 from flask import Flask, render_template, request, jsonify
-from solver import WordleSolver
+from solver import Wordle_Solver
 from util import load_word_lists
 import random
 from collections import Counter
@@ -24,7 +24,7 @@ def solve():
     if target not in all_words:
         return jsonify({"error": "Invalid word (not in dictionary)."}), 400
 
-    solver = WordleSolver(all_words)
+    solver = Wordle_Solver(all_words)
     guesses = []
     max_attempts = 6
 
@@ -59,7 +59,7 @@ def simulate():
 
     for _ in range(num_trials):
         target = random.choice(answers)
-        solver = WordleSolver(all_words)
+        solver = Wordle_Solver(all_words)
         solved = False
 
         for attempt in range(1, max_attempts + 1):
