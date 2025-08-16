@@ -25,6 +25,8 @@ class Wordle_Solver:
             elif feedback[i] == '-':
                 if letter not in self.greens and all(letter not in y for y in self.yellows):
                     self.grays.add(letter)
+        print(f"[DEBUG] Guess: {guess}, Feedback: {feedback}") #Debug
+
 
     def filter_candidates(self):
         filtered = []
@@ -33,18 +35,30 @@ class Wordle_Solver:
                 filtered.append(word)
         self.candidates = filtered
 
+
     def is_valid(self, word):
+        # Check green constraints
         for i, g in enumerate(self.greens):
             if g is not None and word[i] != g:
                 return False
+
+        # Check yellow constraints
         for i, ys in enumerate(self.yellows):
             for y in ys:
                 if y not in word or word[i] == y:
                     return False
+
+        # Gray logic fix: only eliminate if letter not in green or yellow anywhere
+        known_letters = set(filter(None, self.greens))
+        for ys in self.yellows:
+            known_letters.update(ys)
+
         for g in self.grays:
-            if g in word:
+            if g in word and g not in known_letters:
                 return False
+
         return True
+
 
     def generate_feedback(self, guess, target):
         feedback = ['-'] * 5
@@ -91,5 +105,6 @@ class Wordle_Solver:
             if score > best_score:
                 best_score = score
                 best_word = guess
-
+            
+            print(f"[DEBUG] Candidates remaining: {len(self.candidates)}") #Debug
         return best_word
