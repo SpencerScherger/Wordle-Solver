@@ -4,7 +4,6 @@ from solver import Wordle_Solver
 from util import load_word_lists
 import random
 from collections import Counter
-import time
 
 app = Flask(__name__)
 
