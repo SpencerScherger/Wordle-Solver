@@ -109,13 +109,19 @@
                 body: JSON.stringify({ target: word })
             })
             .then(res => res.json())
+            // Response Handler
             .then(data => {
                 if (data.error) {
                     resultDiv.textContent = data.error;
                     return;
                 }
                 fillGrid(data.guesses);
-                resultDiv.textContent = `The solver took ${data.num_guesses} guess(es).`;
+
+                if (data.solved) {
+                    resultDiv.textContent = `The solver took ${data.num_guesses} guess(es).`;
+                } else {
+                    resultDiv.textContent = `The solver failed to solve the word in ${data.num_guesses} guesses.`;
+                }
             });
         });
     </script>

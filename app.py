@@ -38,9 +38,12 @@ def solve():
         solver.update_constraints(guess, feedback)
         solver.filter_candidates()
 
+    solved = (guesses[-1]["feedback"] == "ggggg") if guesses else False
+    
     return jsonify({
         "guesses": guesses,
-        "num_guesses": len(guesses)
+        "num_guesses": len(guesses),
+        "solved": solved
     })
 
 def generate_feedback(guess, target):
