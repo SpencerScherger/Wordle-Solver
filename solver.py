@@ -25,7 +25,7 @@ class Wordle_Solver:
             elif feedback[i] == '-':
                 if letter not in self.greens and all(letter not in y for y in self.yellows):
                     self.grays.add(letter)
-        print(f"[DEBUG] Guess: {guess}, Feedback: {feedback}") #Debug
+        #print(f"[DEBUG] Guess: {guess}, Feedback: {feedback}") #Debug
 
 
     def filter_candidates(self):
@@ -83,6 +83,9 @@ class Wordle_Solver:
     def next_guess(self):
         if not self.candidates:
             return None
+
+        if len(self.candidates) == 1:
+            return self.candidates[0]
         
         if len(self.candidates) == len(self.all_words):
             return "soare"
@@ -106,5 +109,5 @@ class Wordle_Solver:
                 best_score = score
                 best_word = guess
             
-            print(f"[DEBUG] Candidates remaining: {len(self.candidates)}") #Debug
+        print(f"[DEBUG] Next guess: {guess}, Candidates left: {len(self.candidates)}")
         return best_word
