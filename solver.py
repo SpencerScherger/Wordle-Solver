@@ -67,7 +67,7 @@ class Wordle_Solver:
         return ''.join(feedback)
 
     def next_guess(self):
-        if not self.candidates:
+        if not self.all_words:
             return None
         
         if len(self.candidates) == len(self.all_words):
