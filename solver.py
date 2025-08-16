@@ -74,7 +74,7 @@ class Wordle_Solver:
         best_score = -1
         total = len(self.candidates)
 
-        for guess in self.all_words:
+        for guess in self.candidates:
             feedback_counts = defaultdict(int)
             for target in self.candidates:
                 feedback = self.generate_feedback(guess, target)
