@@ -67,7 +67,7 @@ class Wordle_Solver:
         return ''.join(feedback)
 
     def next_guess(self):
-        if not self.all_words:
+        if not self.candidates:
             return None
         
         if len(self.candidates) == len(self.all_words):
@@ -77,7 +77,7 @@ class Wordle_Solver:
         best_score = -1
         total = len(self.candidates)
 
-        for guess in self.candidates:
+        for guess in self.all_words:
             feedback_counts = defaultdict(int)
             for target in self.candidates:
                 feedback = self.generate_feedback(guess, target)
