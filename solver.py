@@ -69,6 +69,9 @@ class Wordle_Solver:
     def next_guess(self):
         if not self.candidates:
             return None
+        
+        if len(self.candidates) == len(self.all_words):
+            return "soare"
 
         best_word = None
         best_score = -1
