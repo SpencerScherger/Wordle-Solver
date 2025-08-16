@@ -68,6 +68,21 @@ class Wordle_Solver:
         return sorted(self.candidates, key=score, reverse=True)
 
     def next_guess(self):
+        
         if not self.candidates:
             return None
         return self.score_words()[0]
+
+if __name__ == "__main__":
+    solver = Wordle_Solver(all_words)
+
+    while True:
+        guess = solver.next_guess()
+        print(f"Guess: {guess}")
+        feedback = input("Feedback (g/y/-): ").strip().lower()
+        solver.update_constraints(guess, feedback)
+        solver.filter_candidates()
+
+        if feedback == "ggggg":
+            print("Solved!")
+            break
