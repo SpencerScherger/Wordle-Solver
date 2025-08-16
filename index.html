@@ -1,0 +1,123 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wordle Solver Visualizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #121213;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            font-size: 1.2rem;
+            padding: 8px;
+            width: 150px;
+            text-align: center;
+        }
+        button {
+            font-size: 1.2rem;
+            margin-left: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+        .grid {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-template-rows: repeat(6, 60px);
+            gap: 10px;
+        }
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #3a3a3c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .green { background-color: #538d4e; color: white; border: none; }
+        .yellow { background-color: #b59f3b; color: white; border: none; }
+        .gray { background-color: #3a3a3c; color: white; border: none; }
+        #result {
+            margin-top: 30px;
+            font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wordle Solver Visualizer</h1>
+    <form id="wordForm">
+        <input type="text" id="target" maxlength="5" placeholder="Target word" required>
+        <button type="submit">Solve</button>
+    </form>
+
+    <div class="grid" id="grid"></div>
+    <div id="result"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const grid = document.getElementById("grid");
+        const resultDiv = document.getElementById("result");
+
+        function createGrid() {
+            grid.innerHTML = "";
+            for (let i = 0; i < 30; i++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                grid.appendChild(cell);
+            }
+        }
+
+        function fillGrid(guesses) {
+            guesses.forEach((entry, i) => {
+                for (let j = 0; j < 5; j++) {
+                    const cell = grid.children[i * 5 + j];
+                    cell.textContent = entry.word[j];
+                    const f = entry.feedback[j];
+                    if (f === 'g') cell.classList.add("green");
+                    else if (f === 'y') cell.classList.add("yellow");
+                    else cell.classList.add("gray");
+                }
+            });
+        }
+
+        document.getElementById("wordForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const word = document.getElementById("target").value.toLowerCase();
+            if (word.length !== 5) return;
+
+            createGrid();
+            resultDiv.textContent = "Solving...";
+
+            fetch("/solve", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ target: word })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.textContent = data.error;
+                    return;
+                }
+                fillGrid(data.guesses);
+                resultDiv.textContent = `The solver took ${data.num_guesses} guess(es).`;
+            });
+        });
+    </script>
+</body>
+</html>
