@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Wordle Solver Visualizer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
     <style>
         body {
@@ -19,7 +18,7 @@
         h1 {
             margin-bottom: 20px;
         }
-        input[type="text"] {
+        input[type="text"], input[type="number"] {
             font-size: 1.2rem;
             padding: 8px;
             width: 150px;
@@ -52,9 +51,16 @@
         .green { background-color: #538d4e; color: white; border: none; }
         .yellow { background-color: #b59f3b; color: white; border: none; }
         .gray { background-color: #3a3a3c; color: white; border: none; }
-        #result {
+        #result, #simStatus {
             margin-top: 30px;
             font-size: 1.3rem;
+        }
+        #histogram {
+            margin-top: 40px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            color: #000;
         }
     </style>
 </head>
@@ -68,10 +74,22 @@
     <div class="grid" id="grid"></div>
     <div id="result"></div>
 
+    <hr style="margin: 40px; width: 80%">
+
+    <form id="simForm">
+        <input type="number" id="iterations" placeholder="Iterations" min="1" required>
+        <button type="submit">Run Simulation</button>
+    </form>
+    <div id="simStatus"></div>
+    <canvas id="histogram" width="400" height="300" style="display:none;"></canvas>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const grid = document.getElementById("grid");
         const resultDiv = document.getElementById("result");
+        const simStatus = document.getElementById("simStatus");
+        const histogram = document.getElementById("histogram");
 
         function createGrid() {
             grid.innerHTML = "";
@@ -109,14 +127,12 @@
                 body: JSON.stringify({ target: word })
             })
             .then(res => res.json())
-            // Response Handler
             .then(data => {
                 if (data.error) {
                     resultDiv.textContent = data.error;
                     return;
                 }
                 fillGrid(data.guesses);
-
                 if (data.solved) {
                     resultDiv.textContent = `The solver took ${data.num_guesses} guess(es).`;
                 } else {
@@ -124,6 +140,62 @@
                 }
             });
         });
+
+        document.getElementById("simForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const iterations = parseInt(document.getElementById("iterations").value);
+            if (!iterations || iterations < 1) return;
+
+            simStatus.textContent = "Waiting on solver to finish...";
+            histogram.style.display = "none";
+
+            fetch("/simulate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ trials: iterations })
+            })
+            .then(res => res.json())
+            .then(data => {
+                simStatus.textContent = "Simulation complete.";
+                histogram.style.display = "block";
+                renderHistogram(data);
+            });
+        });
+
+        function renderHistogram(data) {
+            const ctx = document.getElementById('histogram').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ["1", "2", "3", "4", "5", "6", "Fail"],
+                    datasets: [{
+                        label: "Number of Words",
+                        data: [
+                            data["1"] || 0,
+                            data["2"] || 0,
+                            data["3"] || 0,
+                            data["4"] || 0,
+                            data["5"] || 0,
+                            data["6"] || 0,
+                            data["fail"] || 0
+                        ],
+                        backgroundColor: '#538d4e'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Count' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Guesses' }
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
