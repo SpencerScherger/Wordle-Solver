@@ -5,24 +5,17 @@ from collections import defaultdict, Counter
 answers, all_words = load_word_lists()
 
 class Wordle_Solver:
+    #
     def __init__(self, all_words):
         self.all_words = all_words
         self.reset()
 
     def reset(self):
-        # in reset()
         self.candidates = self.all_words.copy()
         self.greens = [None] * 5                      # fixed letters
         self.yellows = [set() for _ in range(5)]      # banned letters per position
         self.min_counts = {}                          # letter -> minimum count required
         self.max_counts = {}                          # letter -> maximum count allowed (when known)
-
-        '''
-        self.candidates = self.all_words.copy()
-        self.greens = [None] * 5
-        self.yellows = [set() for _ in range(5)]
-        self.grays = set()
-        '''
 
     def update_constraints(self, guess, feedback):
         # Per-letter greens+yellows in this guess
@@ -55,19 +48,6 @@ class Wordle_Solver:
                     self.max_counts[gch] = min(current_cap, gy_count[gch])
                 else:
                     self.max_counts[gch] = 0
-        '''
-        for i in range(5):
-            letter = guess[i]
-            if feedback[i] == 'g':
-                self.greens[i] = letter
-            elif feedback[i] == 'y':
-                self.yellows[i].add(letter)
-            elif feedback[i] == '-':
-                if letter not in self.greens and all(letter not in y for y in self.yellows):
-                    self.grays.add(letter)
-        #print(f"[DEBUG] Guess: {guess}, Feedback: {feedback}") #Debug
-        '''
-
 
     def filter_candidates(self):
         filtered = []
@@ -100,30 +80,6 @@ class Wordle_Solver:
                 return False
 
         return True
-        '''
-        # Check green constraints
-        for i, g in enumerate(self.greens):
-            if g is not None and word[i] != g:
-                return False
-
-        # Check yellow constraints
-        for i, ys in enumerate(self.yellows):
-            for y in ys:
-                if y not in word or word[i] == y:
-                    return False
-
-        # Gray logic fix: only eliminate if letter not in green or yellow anywhere
-        known_letters = set(filter(None, self.greens))
-        for ys in self.yellows:
-            known_letters.update(ys)
-
-        for g in self.grays:
-            if g in word and g not in known_letters:
-                return False
-
-        return True
-        '''
-
 
     def generate_feedback(self, guess, target):
         feedback = ['-'] * 5
