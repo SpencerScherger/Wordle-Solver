@@ -1,4 +1,3 @@
-# simulation.py
 import random
 import secrets
 from solver import Wordle_Solver
@@ -7,6 +6,13 @@ from collections import Counter
 import csv
 
 def main():
+    '''
+    Main function for simulating Wordle puzzles
+    Exports to CSV file
+
+    :return: None
+    '''
+
     # Configuration
     NUM_TRIALS = 1000
     MAX_ATTEMPTS = 6
@@ -18,7 +24,8 @@ def main():
     answers, all_words = load_word_lists()
 
     # Statistics tracker
-    guess_distribution = Counter()  # keys: 1-6 or 'fail'
+    # 1-6 or 'fail'
+    guess_distribution = Counter()
 
     # Ensure results/ folder exists
     import os

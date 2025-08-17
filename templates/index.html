@@ -1,4 +1,6 @@
-<!-- templates/index.html -->
+<!-- templates/index.html  -->
+<!-- Uses inline scripts to embed the JavaScript code directly within the HTML file. -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -92,6 +94,11 @@
         const histogram = document.getElementById("histogram");
         let chartInstance = null;
 
+        /**
+         * Clears the grid and creates 30 empty cells in a 6x5 grid.
+         *
+         * @return {void}
+         */
         function createGrid() {
             grid.innerHTML = "";
             for (let i = 0; i < 30; i++) {
@@ -101,6 +108,14 @@
             }
         }
 
+        /**
+         * Fills the grid with the guesses and their corresponding feedback.
+         *
+         * @param {Array} guesses - An array of objects representing each guess,
+         *                          where each object has properties 'word' (a 5-letter string)
+         *                          and 'feedback' (a 5-character string of 'g', 'y', '-').
+         * @return {void}
+         */
         function fillGrid(guesses) {
             guesses.forEach((entry, i) => {
                 for (let j = 0; j < 5; j++) {
@@ -164,13 +179,25 @@
             });
         });
 
+        
+        /**
+         * Renders a histogram based on the given raw data
+         * Creates a new Chart object and destroys the previous one if it exists
+         *
+         * @param {Object} raw - The raw data to be rendered. It should have a
+         * 'dist' key if the data is a Counter object. Otherwise, it should be
+         * an object containing the guess distribution. Each key in the object
+         * should correspond to a guess number or 'fail'. The value of each key
+         * should be the count of that guess number or 'fail'.
+         * 
+         * @return {void}
+         */
         function renderHistogram(raw) {
-            // Accept either a plain dict or {dist: {...}}
             const data = raw.dist ? raw.dist : raw;
 
             const ctx = document.getElementById('histogram').getContext('2d');
             if (chartInstance) {
-                chartInstance.destroy();            // <-- key line
+                chartInstance.destroy();
             }
 
             chartInstance = new Chart(ctx, {

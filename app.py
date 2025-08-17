@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, render_template, request, jsonify
 from solver import Wordle_Solver
 from util import load_word_lists
@@ -13,22 +12,36 @@ answers, all_words = load_word_lists()
 
 @app.route("/", methods=["GET"])
 def index():
+    '''
+    Route for the index page
+    This route handles GET requests to the root URL ("/") and renders the "index.html" template
+
+    :return: The rendered "index.html" template
+    '''
     return render_template("index.html")
 
 @app.route("/solve", methods=["POST"])
 def solve():
+    '''
+    Route for solving a Wordle puzzle
+    This route handles POST requests to the "/solve" endpoint and returns the solution
+
+    :return: A JSON response containing the solution
+    '''
     target = request.json.get("target", "").strip().lower()
 
+    # Input validation
     if len(target) != 5:
         return jsonify({"error": "Word must be exactly 5 letters."}), 400
-    if target not in all_words:
-        return jsonify({"error": "Invalid word (not in dictionary)."}), 400
+    if target not in answers:
+        return jsonify({"error": "Invalid word (not in answers dictionary)."}), 400
 
     solver = Wordle_Solver(all_words)
     guesses = []
     max_attempts = 6
 
     for attempt in range(max_attempts):
+        # Call solver to get next guess
         guess = solver.next_guess()
         if guess is None:
             break
@@ -39,6 +52,7 @@ def solve():
         if feedback == "ggggg":
             break
 
+        # Hard mode rules
         solver.update_constraints(guess, feedback)
         solver.filter_candidates()
 
@@ -52,6 +66,12 @@ def solve():
 
 @app.route("/simulate", methods=["POST"])
 def simulate():
+    '''
+    Route for simulating Wordle puzzles
+    This route handles POST requests to the "/simulate" endpoint and returns the guess distribution
+
+    :return: A JSON response containing the guess distribution
+    '''
     data = request.json
     num_trials = int(data.get("trials", 1000))
     max_attempts = 6
@@ -63,9 +83,6 @@ def simulate():
     for _ in range(num_trials):
         target = rng.choice(answers)
 
-        if _ < 3:  # print a few
-            print("[simulate] sample target:", target)
-            
         solver = Wordle_Solver(all_words)
         solved = False
 
@@ -88,7 +105,16 @@ def simulate():
 
     return jsonify(guess_distribution)
 
+# Helper functions (soon to be deleted)
 def generate_feedback(guess, target):
+    '''
+    Generate feedback for a guess based on the target word
+
+    :param guess: The guessed word
+    :param target: The target word
+
+    :return: The feedback in a 5 character string using 'g', 'y' and '-'
+    '''
     feedback = ["-"] * 5
     used = [False] * 5
     for i in range(5):
@@ -106,6 +132,14 @@ def generate_feedback(guess, target):
     return "".join(feedback)
 
 def generate_feedback_list(guess, target):
+    '''
+    Generate feedback for a guess based on the target word
+
+    :param guess: The guessed word
+    :param target: The target word
+
+    :return: The feedback in a 5 character string using 'g', 'y' and '-'
+    '''
     feedback = ["-"] * 5
     used = [False] * 5
     for i in range(5):
